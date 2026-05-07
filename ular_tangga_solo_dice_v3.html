@@ -1,0 +1,509 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+#gr{padding:1rem 0;font-family:var(--font-sans);}
+canvas#bd{border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);display:block;}
+#wrap{display:flex;flex-direction:column;align-items:center;gap:12px;}
+#header{width:100%;max-width:600px;text-align:center;}
+#header h1{font-size:17px;font-weight:500;color:var(--color-text-primary);}
+#header .sub{font-size:12px;color:var(--color-text-secondary);margin-top:3px;}
+#legend{display:flex;gap:11px;font-size:11px;color:var(--color-text-secondary);align-items:center;flex-wrap:wrap;justify-content:center;}
+.leg{display:flex;align-items:center;gap:4px;}
+.leg-box{width:11px;height:11px;border-radius:2px;}
+#top-bar{display:none;flex-direction:row;gap:8px;width:100%;max-width:600px;justify-content:space-between;align-items:center;}
+.scard{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:7px 12px;text-align:center;min-width:78px;}
+.scard .slbl{font-size:11px;color:var(--color-text-secondary);margin-bottom:2px;}
+.scard .sval{font-size:17px;font-weight:500;color:var(--color-text-primary);}
+#msg-area{width:100%;max-width:600px;text-align:center;display:none;}
+#msg{font-size:13px;font-weight:500;color:var(--color-text-primary);min-height:18px;}
+
+/* dice row */
+#dice-row{display:none;align-items:center;gap:14px;justify-content:center;}
+#dice-svg{cursor:pointer;filter:drop-shadow(0 2px 4px rgba(0,0,0,.15));}
+#roll-btn{font-size:14px;padding:7px 24px;border-radius:var(--border-radius-md);border:1.5px solid #534AB7;background:#534AB7;color:#fff;cursor:pointer;font-weight:500;transition:background .15s,transform .1s;}
+#roll-btn:hover{background:#3C3489;}
+#roll-btn:active{transform:scale(.97);}
+#roll-btn:disabled{background:var(--color-background-secondary);border-color:var(--color-border-tertiary);color:var(--color-text-secondary);cursor:default;}
+#new-btn{font-size:12px;padding:5px 13px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;}
+#new-btn:hover{background:var(--color-background-secondary);}
+
+/* quiz */
+#quiz-panel{display:none;width:100%;max-width:600px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px;}
+#q-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+#q-topic{font-size:11px;font-weight:500;color:#534AB7;letter-spacing:.5px;text-transform:uppercase;}
+#q-dice-badge{font-size:12px;background:#534AB7;color:#fff;border-radius:6px;padding:2px 9px;font-weight:500;}
+#q-text{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:12px;line-height:1.5;}
+#q-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.qb{font-size:13px;padding:8px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);cursor:pointer;text-align:left;color:var(--color-text-primary);line-height:1.4;transition:background .15s;}
+.qb:hover{background:var(--color-background-tertiary);}
+.qb.correct{background:#EAF3DE;border-color:#3B6D11;color:#27500A;}
+.qb.wrong{background:#FCEBEB;border-color:#A32D2D;color:#791F1F;}
+#q-fb{font-size:13px;margin-top:10px;min-height:18px;color:var(--color-text-secondary);}
+#q-explanation{display:none;margin-top:8px;padding:10px 12px;border-radius:var(--border-radius-md);background:#E6F1FB;border:0.5px solid #85B7EB;font-size:13px;color:#0C447C;line-height:1.5;}
+#q-next{display:none;font-size:13px;padding:6px 18px;border-radius:var(--border-radius-md);border:1.5px solid #534AB7;background:#534AB7;color:#fff;cursor:pointer;margin-top:10px;}
+#q-next:hover{background:#3C3489;}
+
+/* start */
+#start-panel{width:100%;max-width:600px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:20px;text-align:center;}
+#start-panel p{font-size:13px;color:var(--color-text-secondary);margin-bottom:16px;line-height:1.8;}
+#start-btn{font-size:14px;padding:8px 28px;border-radius:var(--border-radius-md);border:1.5px solid #534AB7;background:#534AB7;color:#fff;cursor:pointer;font-weight:500;}
+#start-btn:hover{background:#3C3489;}
+
+/* end */
+#end-panel{display:none;width:100%;max-width:600px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:24px;text-align:center;position:relative;overflow:hidden;}
+#end-panel h3{font-size:20px;font-weight:500;margin-bottom:8px;color:var(--color-text-primary);}
+#end-panel p{font-size:13px;color:var(--color-text-secondary);margin-bottom:16px;line-height:1.6;}
+#play-again-btn{font-size:14px;padding:8px 24px;border-radius:var(--border-radius-md);border:1.5px solid #534AB7;background:#534AB7;color:#fff;cursor:pointer;font-weight:500;}
+#play-again-btn:hover{background:#3C3489;}
+#confetti-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+#win-badge{font-size:48px;margin-bottom:8px;display:block;}
+</style>
+
+<div id="gr">
+<div id="wrap">
+  <div id="header">
+    <h1>Snakes and Ladders: Public Health Edition</h1>
+    <div class="sub">SEFTIA RAHMA &nbsp;|&nbsp; NPM: 240114917636</div>
+  </div>
+
+  <canvas id="bd" width="600" height="600"></canvas>
+
+  <div id="legend">
+    <div class="leg"><div class="leg-box" style="background:#C0DD97;"></div>Ladder</div>
+    <div class="leg"><div class="leg-box" style="background:#F7C1C1;"></div>Snake</div>
+    <div class="leg"><div class="leg-box" style="background:#CECBF6;"></div>Epidemiology</div>
+    <div class="leg"><div class="leg-box" style="background:#9FE1CB;"></div>Occ. Health</div>
+    <div class="leg"><div class="leg-box" style="background:#F4C0D1;"></div>Repro. Health</div>
+    <div class="leg"><div class="leg-box" style="background:#B5D4F4;"></div>Env. Health</div>
+    <div class="leg"><div class="leg-box" style="background:#FAC775;"></div>Nutrition</div>
+  </div>
+
+  <div id="top-bar">
+    <div class="scard"><div class="slbl">Position</div><div class="sval" id="s-pos">1</div></div>
+    <div class="scard"><div class="slbl">Score</div><div class="sval" id="s-score">0</div></div>
+    <div class="scard"><div class="slbl">Correct</div><div class="sval" id="s-correct">0</div></div>
+    <div class="scard"><div class="slbl">Wrong</div><div class="sval" id="s-wrong">0</div></div>
+    <button id="new-btn">Restart</button>
+  </div>
+
+  <div id="msg-area"><div id="msg"></div></div>
+
+  <div id="dice-row">
+    <svg id="dice-svg" width="54" height="54" viewBox="0 0 54 54" role="img" aria-label="Dice">
+      <rect x="2" y="2" width="50" height="50" rx="10" fill="#534AB7"/>
+      <g id="dots" fill="#fff"></g>
+    </svg>
+    <button id="roll-btn">Roll Dice</button>
+  </div>
+
+  <div id="start-panel">
+    <p>🎲 Roll the dice — a question will appear.<br>
+    <strong style="color:#27500A;">Correct answer</strong> = move forward by the dice number<br>
+    <strong style="color:#A32D2D;">Wrong answer</strong> = stay in place (but see the correct answer)<br>
+    🪜 Land on a ladder = go up &nbsp;&nbsp; 🐍 Land on a snake = go down<br>
+    Reach square <strong style="color:var(--color-text-primary);">60</strong> to win!</p>
+    <button id="start-btn">Start Game</button>
+  </div>
+
+  <div id="quiz-panel">
+    <div id="q-header">
+      <div id="q-topic"></div>
+      <div id="q-dice-badge"></div>
+    </div>
+    <div id="q-text"></div>
+    <div id="q-opts"></div>
+    <div id="q-fb"></div>
+    <div id="q-explanation"></div>
+    <button id="q-next">Continue</button>
+  </div>
+
+  <div id="end-panel">
+    <canvas id="confetti-canvas"></canvas>
+    <span id="win-badge">🎉</span>
+    <h3>Congratulations!</h3>
+    <p id="end-stats"></p>
+    <button id="play-again-btn">Play Again</button>
+  </div>
+</div>
+</div>
+
+<script>
+const QUIZZES=[
+{t:"Epidemiology",q:"What is epidemiology?",opts:["Study of diseases in populations","Study of animals","Study of drugs","Study of plants"],a:0,exp:"Epidemiology is the study of how diseases are distributed in populations and what factors influence their spread."},
+{t:"Epidemiology",q:"What is incidence?",opts:["Total number of cases","New cases in a population","Old cases only","Death cases"],a:1,exp:"Incidence refers to the number of NEW cases of a disease occurring in a population during a specific time period."},
+{t:"Epidemiology",q:"What is prevalence?",opts:["New cases only","Total cases in a population","Death rate","Recovery rate"],a:1,exp:"Prevalence is the TOTAL proportion of a population found to have a condition — including both new and existing cases."},
+{t:"Epidemiology",q:"What causes tuberculosis?",opts:["Virus","Bacteria","Fungus","Parasite"],a:1,exp:"Tuberculosis (TB) is caused by the bacterium Mycobacterium tuberculosis. It primarily affects the lungs."},
+{t:"Epidemiology",q:"How is dengue transmitted?",opts:["Through air","Through water","Mosquito bite","Through food"],a:2,exp:"Dengue fever is transmitted through the bite of an infected Aedes mosquito, particularly Aedes aegypti."},
+{t:"Epidemiology",q:"What is a pandemic?",opts:["A local disease","Global disease spread","A small infection","A rare disease"],a:1,exp:"A pandemic is an epidemic that has spread across multiple countries or continents, affecting a large number of people globally."},
+{t:"Epidemiology",q:"What is a vector in disease transmission?",opts:["A medicine","Organism that transmits disease","A symptom","A vaccine"],a:1,exp:"A vector is a living organism — often an insect like a mosquito — that transmits infectious pathogens from one host to another."},
+{t:"Epidemiology",q:"What is the mortality rate?",opts:["Number of deaths per population","Number of births","Number of patients","Number of doctors"],a:0,exp:"Mortality rate measures the number of deaths in a population over a specific time period, usually expressed per 1,000 or 100,000 people."},
+{t:"Epidemiology",q:"What is morbidity?",opts:["Death","Illness or disease state","Recovery","Health"],a:1,exp:"Morbidity refers to the state of being diseased or unhealthy within a population. It is distinct from mortality, which refers to death."},
+{t:"Epidemiology",q:"What is herd immunity?",opts:["Individual protection only","Community protection via vaccination","Animal immunity","Protection from disasters"],a:1,exp:"Herd immunity occurs when a large portion of a community becomes immune to a disease, reducing spread even to unimmunized individuals."},
+{t:"Epidemiology",q:"How does COVID-19 primarily spread?",opts:["Through soil","Through water","Via respiratory droplets","Through food"],a:2,exp:"COVID-19 spreads primarily through respiratory droplets and aerosols released when an infected person breathes, talks, coughs, or sneezes."},
+{t:"Epidemiology",q:"What is a disease outbreak?",opts:["Sudden increase of cases","Decrease of cases","No disease present","Mass recovery"],a:0,exp:"An outbreak is a sudden rise in the number of disease cases in a community beyond what is normally expected."},
+{t:"Epidemiology",q:"What is surveillance in public health?",opts:["Watching television","Monitoring disease data systematically","Providing treatment","Administering vaccines"],a:1,exp:"Public health surveillance is the continuous, systematic collection and analysis of health data to guide public health action."},
+{t:"Epidemiology",q:"What is a risk factor?",opts:["A cure for disease","Something that increases disease risk","A vaccine type","A medicine"],a:1,exp:"A risk factor is any attribute, characteristic, or exposure that increases the likelihood of developing a disease or health disorder."},
+{t:"Epidemiology",q:"What is quarantine?",opts:["A type of treatment","Isolation to prevent disease spread","A vaccination method","A form of exercise"],a:1,exp:"Quarantine is the separation of people who may have been exposed to a contagious disease to prevent potential spread before symptoms appear."},
+{t:"Occ. Health",q:"What does PPE stand for?",opts:["Personal Protective Equipment","Public Protection Equipment","Patient Protection Equipment","Private Protective Equipment"],a:0,exp:"PPE stands for Personal Protective Equipment — gear worn to minimize exposure to hazards, such as gloves, masks, goggles, and helmets."},
+{t:"Occ. Health",q:"Which of these is an example of PPE?",opts:["Face mask","Office table","Plastic chair","Textbook"],a:0,exp:"A face mask is a common PPE item that protects the wearer from inhaling hazardous substances or spreading respiratory droplets."},
+{t:"Occ. Health",q:"What is a workplace hazard?",opts:["A safe working condition","A dangerous condition at work","A clean workspace area","A quiet environment"],a:1,exp:"A workplace hazard is any source of potential harm or danger in a work environment that could cause injury, illness, or damage."},
+{t:"Occ. Health",q:"What is a common cause of workplace accidents?",opts:["Following safety rules","Unsafe behavior by workers","Attending safety training","Having work experience"],a:1,exp:"Unsafe behavior — such as ignoring safety procedures or failing to wear PPE — is one of the leading causes of workplace accidents."},
+{t:"Occ. Health",q:"What is ergonomics?",opts:["Study of workplace design for human use","Study of food safety","Study of infectious disease","Study of water quality"],a:0,exp:"Ergonomics is the science of designing workplaces, tools, and tasks to fit the worker — reducing strain, injury, and improving efficiency."},
+{t:"Occ. Health",q:"Which of these is a physical hazard?",opts:["Excessive noise","A virus","Bacteria","A chemical germ"],a:0,exp:"Excessive noise is a physical hazard that can cause hearing loss. Other physical hazards include extreme temperatures, radiation, and vibration."},
+{t:"Occ. Health",q:"What is a chemical hazard?",opts:["Bright light","Toxic substances","Loud sound","Clean air"],a:1,exp:"Chemical hazards are toxic or harmful substances — like solvents, pesticides, or heavy metals — that can cause illness or injury through exposure."},
+{t:"Occ. Health",q:"What should workers do before starting work?",opts:["Ignore safety rules","Follow established safety procedures","Take a nap","Eat a large meal"],a:1,exp:"Following established safety procedures before starting work — such as checking equipment and wearing PPE — prevents accidents."},
+{t:"Occ. Health",q:"What is occupational fatigue?",opts:["High energy levels","Excessive tiredness from work","Feeling happy","Physical strength"],a:1,exp:"Occupational fatigue is extreme tiredness from physical or mental exertion at work, which can impair performance and increase accident risk."},
+{t:"Occ. Health",q:"What is the goal of accident prevention?",opts:["Increasing workplace risk","Reducing the risk of accidents","Ignoring workplace hazards","Encouraging unsafe shortcuts"],a:1,exp:"Accident prevention aims to identify, eliminate, or control hazards to reduce the likelihood of injury or illness in the workplace."},
+{t:"Occ. Health",q:"What is a safety sign used for?",opts:["Workplace decoration","Warning about potential hazards","A toy or prop","A general tool"],a:1,exp:"Safety signs communicate warnings, instructions, or information about hazards to protect workers and visitors from harm."},
+{t:"Occ. Health",q:"What is a fire hazard?",opts:["A source of water","A risk of fire occurring","Clean air supply","Soil contamination"],a:1,exp:"A fire hazard is any condition or material that increases the risk of a fire starting or spreading, such as flammable liquids or faulty wiring."},
+{t:"Occ. Health",q:"What should be worn in a laboratory?",opts:["Flip-flops or sandals","Personal Protective Equipment","No protection needed","Open-toed shoes"],a:1,exp:"In laboratories, PPE such as lab coats, goggles, gloves, and closed-toe shoes must be worn to protect against various hazards."},
+{t:"Occ. Health",q:"What is a risk assessment?",opts:["Ignoring potential risks","Systematically identifying hazards","Playing at work","Sleeping on duty"],a:1,exp:"Risk assessment is the process of identifying potential hazards in a workplace, evaluating the likelihood of harm, and determining control measures."},
+{t:"Occ. Health",q:"What is the purpose of safety training?",opts:["To learn and apply safety rules","To watch television","To play workplace games","To sleep at work"],a:0,exp:"Safety training equips workers with the knowledge and skills to identify hazards, follow procedures, and respond appropriately to emergencies."},
+{t:"Repro. Health",q:"What is reproductive health?",opts:["Health of the lungs","Health of the reproductive system","Health of the eyes","Health of the skin"],a:1,exp:"Reproductive health encompasses the physical, mental, and social well-being related to the reproductive system at all stages of life."},
+{t:"Repro. Health",q:"What is menstruation?",opts:["A type of pregnancy","Monthly uterine bleeding","A type of infection","A chronic disease"],a:1,exp:"Menstruation is the monthly shedding of the uterine lining in females who are not pregnant, typically occurring every 28 days."},
+{t:"Repro. Health",q:"What is the purpose of contraception?",opts:["To prevent unwanted pregnancy","To cause disease","To cure infections","To increase birth rate"],a:0,exp:"Contraception refers to methods used to prevent pregnancy, including barrier methods, hormonal methods, and intrauterine devices (IUDs)."},
+{t:"Repro. Health",q:"Which of these is a contraceptive method?",opts:["Drinking water","Taking vitamins","Using a condom","Eating certain foods"],a:2,exp:"A condom is a barrier contraceptive that prevents pregnancy and also reduces the risk of sexually transmitted infections (STIs)."},
+{t:"Repro. Health",q:"What is HIV?",opts:["A type of bacteria","A virus","A fungal infection","A parasite"],a:1,exp:"HIV (Human Immunodeficiency Virus) is a virus that attacks the immune system, specifically CD4 cells, weakening the body's ability to fight infections."},
+{t:"Repro. Health",q:"What is AIDS?",opts:["The earliest stage of HIV","Advanced stage HIV disease","A mild viral infection","Full recovery from HIV"],a:1,exp:"AIDS (Acquired Immunodeficiency Syndrome) is the most advanced stage of HIV infection, where the immune system is severely damaged."},
+{t:"Repro. Health",q:"How is HIV primarily transmitted?",opts:["Through the air","Via handshaking","Through blood or bodily fluid contact","Through drinking water"],a:2,exp:"HIV is transmitted through contact with infected blood, breast milk, semen, or vaginal fluids — not through casual contact like handshakes."},
+{t:"Repro. Health",q:"What is pregnancy?",opts:["A type of disease","Carrying a developing baby in the womb","A type of infection","A physical injury"],a:1,exp:"Pregnancy is the period during which a developing fetus grows inside the uterus, typically lasting about 40 weeks from the last menstrual period."},
+{t:"Repro. Health",q:"What is safe sex?",opts:["High-risk sexual behavior","Protected sexual intercourse","Unprotected intercourse","Unsafe sexual practices"],a:1,exp:"Safe sex involves practices that reduce the risk of STIs and unintended pregnancy, such as using condoms and limiting number of partners."},
+{t:"Repro. Health",q:"What does STD stand for?",opts:["Skin Transmitted Disease","Sexually Transmitted Disease","Severe Toxic Disorder","Systemic Tissue Damage"],a:1,exp:"STD stands for Sexually Transmitted Disease — infections spread primarily through sexual contact, such as chlamydia, gonorrhea, syphilis, and HIV."},
+{t:"Repro. Health",q:"What is family planning?",opts:["Planning the number and timing of children","Planning daily food intake","Planning school schedules","Planning work shifts"],a:0,exp:"Family planning helps individuals and couples decide the number and spacing of children through education, counseling, and contraception."},
+{t:"Repro. Health",q:"What is puberty?",opts:["A stage of early childhood","Physical and hormonal changes in adolescence","A condition of old age","A type of disease"],a:1,exp:"Puberty is the process of physical and hormonal changes through which a child's body matures into an adult capable of reproduction."},
+{t:"Repro. Health",q:"What is fertility?",opts:["A type of disease","The ability to conceive and reproduce","A type of infection","A physical injury"],a:1,exp:"Fertility is the natural capability to produce offspring. Factors affecting fertility include age, health status, lifestyle, and medical conditions."},
+{t:"Repro. Health",q:"What is prenatal care?",opts:["Healthcare provided before childbirth","Care provided after death","Care provided after work","Care provided after school"],a:0,exp:"Prenatal care is regular medical supervision during pregnancy to monitor the health of both mother and baby, preventing complications."},
+{t:"Repro. Health",q:"What is breastfeeding?",opts:["Feeding a baby with breast milk","Giving water to a baby","Giving solid food to a baby","Giving fruit juice to a baby"],a:0,exp:"Breastfeeding provides ideal nutrition for infants, offering antibodies that boost immunity and reduce risk of many illnesses."},
+{t:"Env. Health",q:"What characterizes clean drinking water?",opts:["It is visibly polluted","It is safe to drink without harm","It contains dirt and sediment","It is wastewater"],a:1,exp:"Clean drinking water is free from harmful contaminants — biological, chemical, and physical — making it safe for human consumption."},
+{t:"Env. Health",q:"What is sanitation?",opts:["A dirty waste system","A system to maintain a clean and hygienic environment","Industrial waste output","A form of pollution"],a:1,exp:"Sanitation refers to public health conditions related to clean drinking water and treatment and disposal of sewage and solid waste."},
+{t:"Env. Health",q:"What is a major cause of air pollution?",opts:["Planting more trees","Exhaust from vehicles and factories","Clean river water","Fertile soil"],a:1,exp:"Vehicle exhaust and industrial emissions release pollutants like CO2, NOx, and particulate matter — major contributors to air pollution."},
+{t:"Env. Health",q:"What is proper waste management?",opts:["Leaving waste unattended","Handling waste safely and responsibly","Burning all waste anywhere","Dumping waste in rivers"],a:1,exp:"Proper waste management involves collecting, transporting, and disposing of waste in ways that minimize environmental and health impacts."},
+{t:"Env. Health",q:"What is vector control in environmental health?",opts:["Feeding domestic animals","Eliminating disease-carrying organisms like mosquitoes","Drinking more water daily","Planting trees in cities"],a:1,exp:"Vector control involves methods to limit populations of disease-transmitting organisms — such as draining stagnant water to prevent mosquito breeding."},
+{t:"Env. Health",q:"What is a landfill?",opts:["A designated waste disposal site","A source of drinking water","A hospital facility","A school building"],a:0,exp:"A landfill is an engineered site for the disposal of solid waste, designed to minimize environmental contamination."},
+{t:"Env. Health",q:"What is noise pollution?",opts:["Harmful levels of loud sound","Clean fresh air","A peaceful quiet area","Soft ambient sound"],a:0,exp:"Noise pollution is excessive or harmful levels of sound in the environment that can cause hearing damage, stress, and sleep disruption."},
+{t:"Env. Health",q:"What is recycling?",opts:["Throwing waste in the ocean","Reusing or reprocessing materials","Burning all waste","Ignoring waste disposal"],a:1,exp:"Recycling converts waste materials into new products, conserving natural resources and reducing environmental pollution."},
+{t:"Env. Health",q:"What does contamination mean?",opts:["Clean and safe condition","Being polluted by harmful substances","Being fresh and pure","Being in a healthy state"],a:1,exp:"Contamination is the presence of harmful substances — chemicals, microorganisms, or toxins — in an environment or food/water supply."},
+{t:"Env. Health",q:"What is a drainage system used for?",opts:["Managing water flow and runoff","Circulating air in buildings","Distributing food supplies","Providing artificial lighting"],a:0,exp:"A drainage system collects and redirects excess water away from roads, buildings, and agricultural land to prevent flooding and waterlogging."},
+{t:"Nutrition",q:"What is a balanced diet?",opts:["A diet of junk food only","A diet with proper proportions of all nutrients","A diet of only sweets","A diet of fast food"],a:1,exp:"A balanced diet includes the right amounts of carbohydrates, proteins, fats, vitamins, minerals, and water to maintain good health."},
+{t:"Nutrition",q:"What is malnutrition?",opts:["Excellent nutritional status","Poor or inadequate nutritional status","A completely healthy condition","A sign of a strong body"],a:1,exp:"Malnutrition occurs when the body doesn't get enough — or gets too much — of essential nutrients, leading to health problems."},
+{t:"Nutrition",q:"What is obesity?",opts:["Being severely underweight","Having excess body fat beyond healthy levels","Being at a normal weight","Having a very slim body"],a:1,exp:"Obesity is defined as excessive body fat accumulation (BMI 30+) that increases the risk of diabetes, heart disease, and hypertension."},
+{t:"Nutrition",q:"What is physical exercise?",opts:["Lying down and sleeping","Bodily movement that improves fitness","Eating large amounts of food","Watching television all day"],a:1,exp:"Physical exercise is any bodily activity that enhances or maintains physical fitness, health, and overall well-being."},
+{t:"Nutrition",q:"What is health promotion?",opts:["Deliberately causing disease","Preventing disease and improving overall health","Ignoring personal health","Treating illness with medicine only"],a:1,exp:"Health promotion enables people to increase control over and improve their health through education, policy, and environmental changes."}
+];
+
+const SNAKES={55:34,50:19,45:24,38:12,30:7,22:4};
+const LADDERS={3:16,8:26,15:35,24:42,33:51,43:57};
+const COLS=6,ROWS=10,SZ=600,CW=SZ/COLS,CH=SZ/ROWS;
+const boardCanvas=document.getElementById('bd');
+const ctx=boardCanvas.getContext('2d');
+const TOPIC_BG={'Epidemiology':'#EEEDFE','Occ. Health':'#E1F5EE','Repro. Health':'#FBEAF0','Env. Health':'#E6F1FB','Nutrition':'#FAEEDA'};
+const DOT_POS={1:[[27,27]],2:[[14,14],[40,40]],3:[[14,14],[27,27],[40,40]],4:[[14,14],[40,14],[14,40],[40,40]],5:[[14,14],[40,14],[27,27],[14,40],[40,40]],6:[[14,14],[40,14],[14,27],[40,27],[14,40],[40,40]]};
+
+// Audio
+let audioCtx=null;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function playTone(freq,dur,type,vol,delay){
+  type=type||'sine';vol=vol||0.3;delay=delay||0;
+  try{const ac=getAudio();const o=ac.createOscillator();const g=ac.createGain();
+  o.connect(g);g.connect(ac.destination);o.type=type;
+  o.frequency.setValueAtTime(freq,ac.currentTime+delay);
+  g.gain.setValueAtTime(vol,ac.currentTime+delay);
+  g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+delay+dur);
+  o.start(ac.currentTime+delay);o.stop(ac.currentTime+delay+dur+0.05);}catch(e){}
+}
+function playCorrect(){playTone(523,.12,'sine',.25);playTone(659,.12,'sine',.25,.12);playTone(784,.2,'sine',.25,.24);}
+function playWrong(){playTone(200,.15,'sawtooth',.2);playTone(160,.25,'sawtooth',.2,.15);}
+function playLadder(){[523,587,659,698,784,880].forEach((f,i)=>playTone(f,.1,'sine',.2,i*.08));}
+function playSnake(){[440,415,392,370,349,330].forEach((f,i)=>playTone(f,.1,'sawtooth',.15,i*.08));}
+function playVictory(){
+  const m=[[523,.15],[659,.15],[784,.15],[1047,.3],[880,.1],[784,.1],[880,.1],[1047,.4],[784,.15],[659,.15],[784,.3],[523,.4]];
+  let t=0;m.forEach(([f,d])=>{playTone(f,d,'sine',.3,t);t+=d+.02;});
+  setTimeout(()=>{const m2=[[659,.12],[784,.12],[1047,.12],[1319,.35],[1175,.12],[1047,.12],[1175,.12],[1319,.5]];let t2=0;m2.forEach(([f,d])=>{playTone(f,d,'sine',.25,t2);t2+=d+.02;});},2000);
+}
+
+function drawDice(v){
+  const g=document.getElementById('dots');g.innerHTML='';
+  (DOT_POS[v]||[]).forEach(([cx,cy])=>{
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',cx);c.setAttribute('cy',cy);c.setAttribute('r',5);g.appendChild(c);
+  });
+}
+
+function cellPos(n){
+  const row=Math.floor((n-1)/COLS);
+  const col=(row%2===0)?(n-1)%COLS:COLS-1-((n-1)%COLS);
+  return{x:col*CW,y:(ROWS-1-row)*CH};
+}
+function cellTopic(n){
+  if(n<=15)return'Epidemiology';if(n<=30)return'Occ. Health';
+  if(n<=45)return'Repro. Health';if(n<=55)return'Env. Health';return'Nutrition';
+}
+
+function drawBoard(){
+  ctx.clearRect(0,0,SZ,SZ);
+  for(let i=1;i<=60;i++){
+    const{x,y}=cellPos(i);
+    let bg=TOPIC_BG[cellTopic(i)];
+    if(SNAKES[i])bg='#F7C1C1';
+    if(LADDERS[i])bg='#C0DD97';
+    if(i===1)bg='#B5D4F4';
+    if(i===60)bg='#FFD700';
+    ctx.fillStyle=bg;
+    ctx.beginPath();
+    if(ctx.roundRect)ctx.roundRect(x+1,y+1,CW-2,CH-2,3);
+    else ctx.rect(x+1,y+1,CW-2,CH-2);
+    ctx.fill();
+    if(i===1){
+      ctx.fillStyle='#0C447C';ctx.font=`bold ${CW*.16}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText('1',x+CW/2,y+3);
+      ctx.font=`bold ${CW*.17}px sans-serif`;ctx.textBaseline='middle';ctx.fillText('START',x+CW/2,y+CH*.65);
+    } else if(i===60){
+      ctx.fillStyle='#633806';ctx.font=`bold ${CW*.16}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText('60',x+CW/2,y+3);
+      ctx.font=`bold ${CW*.17}px sans-serif`;ctx.textBaseline='middle';ctx.fillText('FINISH',x+CW/2,y+CH*.65);
+    } else {
+      ctx.fillStyle=SNAKES[i]?'#A32D2D':LADDERS[i]?'#3B6D11':'#555';
+      ctx.font=`bold ${CW*.16}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(i,x+CW/2,y+3);
+      if(SNAKES[i]){ctx.font=`${CW*.3}px sans-serif`;ctx.textBaseline='middle';ctx.fillText('🐍',x+CW/2,y+CH*.65);}
+      else if(LADDERS[i]){ctx.font=`${CW*.3}px sans-serif`;ctx.textBaseline='middle';ctx.fillText('🪜',x+CW/2,y+CH*.65);}
+    }
+  }
+  drawLines();drawPlayer();
+}
+
+function drawLines(){
+  Object.entries(SNAKES).forEach(([f,t])=>{
+    const fp=cellPos(+f),tp=cellPos(+t);
+    ctx.strokeStyle='#E24B4A';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(fp.x+CW/2,fp.y+CH/2);ctx.lineTo(tp.x+CW/2,tp.y+CH/2);ctx.stroke();ctx.setLineDash([]);
+  });
+  Object.entries(LADDERS).forEach(([f,t])=>{
+    const fp=cellPos(+f),tp=cellPos(+t);
+    ctx.strokeStyle='#3B6D11';ctx.lineWidth=1.5;ctx.setLineDash([5,3]);
+    ctx.beginPath();ctx.moveTo(fp.x+CW/2,fp.y+CH/2);ctx.lineTo(tp.x+CW/2,tp.y+CH/2);ctx.stroke();ctx.setLineDash([]);
+  });
+}
+
+let pulseAnim=null;
+let G={pos:1,score:0,correct:0,wrong:0,started:false,rolling:false,lastRoll:0};
+
+function drawPlayer(){
+  if(!G.started)return;
+  const{x,y}=cellPos(G.pos);
+  ctx.beginPath();ctx.arc(x+CW/2,y+CH/2,CW*.2,0,Math.PI*2);
+  ctx.fillStyle='#534AB7';ctx.fill();
+  ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.stroke();
+  ctx.fillStyle='#fff';ctx.font=`bold ${CW*.14}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('YOU',x+CW/2,y+CH/2);
+}
+
+function drawPulsingPlayer(){
+  let scale=1,dir=1;
+  function pulse(){
+    drawBoard();
+    const{x,y}=cellPos(60);const r=CW*.2*scale;
+    ctx.beginPath();ctx.arc(x+CW/2,y+CH/2,r,0,Math.PI*2);
+    ctx.fillStyle='#534AB7';ctx.fill();ctx.strokeStyle='#FFD700';ctx.lineWidth=3;ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font=`bold ${CW*.14}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('YOU',x+CW/2,y+CH/2);
+    scale+=dir*.03;if(scale>1.3||scale<.9)dir*=-1;
+    pulseAnim=requestAnimationFrame(pulse);
+  }
+  pulse();
+}
+
+function updateTopBar(){
+  document.getElementById('s-pos').textContent=G.pos;
+  document.getElementById('s-score').textContent=G.score;
+  document.getElementById('s-correct').textContent=G.correct;
+  document.getElementById('s-wrong').textContent=G.wrong;
+}
+
+function setRollBtn(enabled){
+  const btn=document.getElementById('roll-btn');
+  btn.disabled=!enabled;
+  btn.textContent=enabled?'Roll Dice':'Rolling...';
+}
+
+async function rollDice(){
+  if(G.rolling)return;
+  G.rolling=true;setRollBtn(false);
+  document.getElementById('msg').textContent='';
+  let ticks=12,val;
+  await new Promise(r=>{
+    const iv=setInterval(()=>{val=Math.ceil(Math.random()*6);drawDice(val);ticks--;if(ticks<=0){clearInterval(iv);r();}},55);
+  });
+  G.lastRoll=val;
+  document.getElementById('msg').textContent='You rolled a '+val+'! Answer to move forward.';
+  G.rolling=false;
+  showQuiz(val);
+}
+
+function showQuiz(diceVal){
+  const idx=G.pos-1;
+  const q=QUIZZES[idx]||QUIZZES[Math.floor(Math.random()*QUIZZES.length)];
+  document.getElementById('quiz-panel').style.display='block';
+  document.getElementById('q-topic').textContent='Topic: '+q.t;
+  document.getElementById('q-dice-badge').textContent='🎲 +'+diceVal+' if correct';
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('q-fb').textContent='';
+  document.getElementById('q-explanation').style.display='none';
+  document.getElementById('q-next').style.display='none';
+  const optsEl=document.getElementById('q-opts');optsEl.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const btn=document.createElement('button');btn.className='qb';btn.textContent=o;
+    btn.onclick=()=>answer(i,q.a,q.exp,q.opts,diceVal);optsEl.appendChild(btn);
+  });
+}
+
+function answer(chosen,correct,explanation,opts,diceVal){
+  const btns=document.querySelectorAll('.qb');btns.forEach(b=>b.onclick=null);
+  const ok=chosen===correct;
+  btns[chosen].className='qb '+(ok?'correct':'wrong');
+  if(ok){
+    playCorrect();
+    document.getElementById('q-fb').textContent='Correct! +10 points. Moving forward '+diceVal+' squares.';
+    document.getElementById('q-explanation').style.display='none';
+    G.score+=10;G.correct++;
+  }else{
+    playWrong();
+    document.getElementById('q-fb').textContent='Wrong! You stay in place. See the correct answer below.';
+    btns[correct].className='qb correct';
+    const expEl=document.getElementById('q-explanation');
+    expEl.style.display='block';
+    expEl.innerHTML='<strong style="color:#0C447C;">Correct answer: '+opts[correct]+'</strong><br>'+explanation;
+    G.score=Math.max(0,G.score-5);G.wrong++;
+  }
+  document.getElementById('q-next').style.display='inline-block';
+  document.getElementById('q-next').onclick=()=>resolveAnswer(ok,diceVal);
+  updateTopBar();
+}
+
+function resolveAnswer(ok,diceVal){
+  document.getElementById('quiz-panel').style.display='none';
+  if(!ok){
+    // stay in place
+    document.getElementById('msg').textContent='You stayed at square '+G.pos+'. Roll again!';
+    drawBoard();setRollBtn(true);return;
+  }
+  // move forward
+  let newPos=G.pos+diceVal;
+  if(newPos>60)newPos=60;
+  animateMove(G.pos,newPos,()=>{
+    G.pos=newPos;updateTopBar();
+    if(G.pos>=60){G.pos=60;drawBoard();endGame();return;}
+    afterLand();
+  });
+}
+
+function animateMove(from,to,cb){
+  const steps=[];let cur=from;
+  while(cur!==to){cur+=cur<to?1:-1;if(cur>60)cur=60;steps.push(cur);}
+  if(!steps.length){cb();return;}
+  let i=0;
+  function step(){if(i>=steps.length){cb();return;}G.pos=steps[i];drawBoard();i++;setTimeout(step,110);}
+  step();
+}
+
+function afterLand(){
+  if(LADDERS[G.pos]){
+    const dest=LADDERS[G.pos];
+    document.getElementById('msg').textContent='🪜 Ladder! Going up to square '+dest+'!';
+    playLadder();
+    setTimeout(()=>{
+      animateMove(G.pos,dest,()=>{
+        G.pos=dest;updateTopBar();drawBoard();
+        document.getElementById('msg').textContent='Landed on '+G.pos+'. Roll again!';
+        if(G.pos>=60){endGame();}else{setRollBtn(true);}
+      });
+    },600);
+  }else if(SNAKES[G.pos]){
+    const dest=SNAKES[G.pos];
+    document.getElementById('msg').textContent='🐍 A snake! Going down to square '+dest+'!';
+    playSnake();
+    setTimeout(()=>{
+      animateMove(G.pos,dest,()=>{
+        G.pos=dest;updateTopBar();drawBoard();
+        document.getElementById('msg').textContent='Slid down to '+G.pos+'. Roll again!';
+        setRollBtn(true);
+      });
+    },600);
+  }else{
+    document.getElementById('msg').textContent='Moved to square '+G.pos+'. Roll again!';
+    setRollBtn(true);
+  }
+}
+
+let confettiRaf=null;
+function launchConfetti(){
+  const ep=document.getElementById('end-panel');
+  const cc=document.getElementById('confetti-canvas');
+  cc.width=ep.offsetWidth||600;cc.height=ep.offsetHeight||220;
+  const cctx=cc.getContext('2d');
+  const colors=['#534AB7','#D4537E','#1D9E75','#EF9F27','#E24B4A','#378ADD','#5DCAA5','#FFD700'];
+  const parts=Array.from({length:90},()=>({
+    x:Math.random()*cc.width,y:Math.random()*cc.height-cc.height,
+    r:Math.random()*6+3,c:colors[Math.floor(Math.random()*colors.length)],
+    vx:(Math.random()-.5)*3,vy:Math.random()*3+2,rot:Math.random()*360,vr:(Math.random()-.5)*5
+  }));
+  function draw(){
+    cctx.clearRect(0,0,cc.width,cc.height);
+    parts.forEach(p=>{
+      cctx.save();cctx.translate(p.x,p.y);cctx.rotate(p.rot*Math.PI/180);
+      cctx.fillStyle=p.c;cctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);cctx.restore();
+      p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;
+      if(p.y>cc.height){p.y=-10;p.x=Math.random()*cc.width;}
+    });
+    confettiRaf=requestAnimationFrame(draw);
+  }
+  draw();
+}
+function stopConfetti(){if(confettiRaf){cancelAnimationFrame(confettiRaf);confettiRaf=null;}}
+
+function endGame(){
+  document.getElementById('quiz-panel').style.display='none';
+  document.getElementById('dice-row').style.display='none';
+  document.getElementById('msg-area').style.display='none';
+  document.getElementById('top-bar').style.display='none';
+  G.pos=60;drawBoard();
+  if(pulseAnim)cancelAnimationFrame(pulseAnim);
+  drawPulsingPlayer();
+  const ep=document.getElementById('end-panel');ep.style.display='block';
+  const pct=G.correct+G.wrong>0?Math.round((G.correct/(G.correct+G.wrong))*100):0;
+  document.getElementById('end-stats').textContent=
+    'Final score: '+G.score+' pts  |  Correct: '+G.correct+'  |  Wrong: '+G.wrong+'  |  Accuracy: '+pct+'%';
+  setTimeout(launchConfetti,100);
+  playVictory();
+}
+
+function startGame(){
+  stopConfetti();
+  if(pulseAnim){cancelAnimationFrame(pulseAnim);pulseAnim=null;}
+  G={pos:1,score:0,correct:0,wrong:0,started:true,rolling:false,lastRoll:0};
+  document.getElementById('start-panel').style.display='none';
+  document.getElementById('end-panel').style.display='none';
+  document.getElementById('top-bar').style.display='flex';
+  document.getElementById('msg-area').style.display='block';
+  document.getElementById('dice-row').style.display='flex';
+  document.getElementById('msg').textContent='Roll the dice to begin!';
+  drawDice(1);setRollBtn(true);updateTopBar();drawBoard();
+}
+
+function resetToMenu(){
+  stopConfetti();
+  if(pulseAnim){cancelAnimationFrame(pulseAnim);pulseAnim=null;}
+  G={pos:1,score:0,correct:0,wrong:0,started:false,rolling:false,lastRoll:0};
+  document.getElementById('quiz-panel').style.display='none';
+  document.getElementById('end-panel').style.display='none';
+  document.getElementById('start-panel').style.display='block';
+  document.getElementById('top-bar').style.display='none';
+  document.getElementById('msg-area').style.display='none';
+  document.getElementById('dice-row').style.display='none';
+  drawDice(1);drawBoard();
+}
+
+document.getElementById('start-btn').addEventListener('click',startGame);
+document.getElementById('roll-btn').addEventListener('click',rollDice);
+document.getElementById('dice-svg').addEventListener('click',()=>{if(!document.getElementById('roll-btn').disabled)rollDice();});
+document.getElementById('new-btn').addEventListener('click',resetToMenu);
+document.getElementById('play-again-btn').addEventListener('click',startGame);
+drawDice(1);drawBoard();
+</script>
